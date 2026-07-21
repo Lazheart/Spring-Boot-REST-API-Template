@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -51,6 +52,15 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String qrSessionToken;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean enabled = false;
+
+    @Column
+    private String verificationCode;
+
+    @Column
+    private LocalDateTime verificationCodeExpiresAt;
+
     // ---- UserDetails ----
 
     @Override
@@ -75,6 +85,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

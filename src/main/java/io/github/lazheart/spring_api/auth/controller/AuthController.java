@@ -39,6 +39,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(dto));
     }
 
+    @PostMapping("/verify")
+    @Operation(summary = "Verificar cuenta con el código de correo")
+    public ResponseEntity<AuthResponseDto> verifyAccount(@Valid @RequestBody VerifyAccountRequestDto dto) {
+        return ResponseEntity.ok(authService.verifyAccount(dto));
+    }
+
     @PostMapping("/login")
     @Operation(summary = "Login con username o email (+ TOTP si 2FA está activo)")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody AuthRequestDto dto) {

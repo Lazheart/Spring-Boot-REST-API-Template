@@ -11,6 +11,7 @@ import dev.samstevens.totp.time.SystemTimeProvider;
 import dev.samstevens.totp.time.TimeProvider;
 import io.github.lazheart.spring_api.auth.dto.*;
 import io.github.lazheart.spring_api.config.jwt.JwtService;
+import io.github.lazheart.spring_api.mail.service.MailService;
 import io.github.lazheart.spring_api.user.domain.Role;
 import io.github.lazheart.spring_api.user.domain.User;
 import io.github.lazheart.spring_api.user.repository.UserRepository;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -40,6 +42,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final MailService mailService;
 
     // =========================================================
     // REGISTRO
@@ -72,11 +75,45 @@ public class AuthService {
         user.setRole(Role.USER);
         user.setTwoFactorSecret(totpSecret);
         user.setTwoFactorEnabled(false);
+        user.setEnabled(false);
+        user.setVerificationCode(generateVerificationCode());
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
 
         userRepository.save(user);
 
+        mailService.sendVerificationEmail(user.getEmail(), user.getUsername(), user.getVerificationCode());
+
+        return AuthResponseDto.of(null, "Usuario registrado exitosamente. Por favor verifica tu cuenta con el código enviado a tu correo.");
+    }
+
+    /**
+     * Verifica la cuenta de usuario con el código enviado al correo.
+     */
+    @Transactional
+    public AuthResponseDto verifyAccount(VerifyAccountRequestDto dto) {
+        User user = userRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        if (user.isEnabled()) {
+            throw new IllegalStateException("La cuenta ya está verificada");
+        }
+        if (user.getVerificationCode() == null || !user.getVerificationCode().equals(dto.verificationCode())) {
+            throw new IllegalArgumentException("Código de verificación incorrecto");
+        }
+        if (user.getVerificationCodeExpiresAt() != null && user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("El código de verificación ha expirado");
+        }
+
+        user.setEnabled(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiresAt(null);
+        userRepository.save(user);
+
+        mailService.sendVerificationSuccessEmail(user.getEmail(), user.getUsername());
+        mailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+
         String token = jwtService.generateToken(user);
-        return AuthResponseDto.of(token, "Usuario registrado exitosamente");
+        return AuthResponseDto.success(token);
     }
 
     // =========================================================
@@ -226,5 +263,9 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Error generando QR", e);
         }
+    }
+
+    private String generateVerificationCode() {
+        return String.format("%06d", new java.util.Random().nextInt(999999));
     }
 }
