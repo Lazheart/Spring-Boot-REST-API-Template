@@ -46,7 +46,7 @@ La estructura por entidad deberia seguir el siguiente patron:
 └── service
 ```
 
-Adicionalmente se ha implementado seguridad mediante JWT, autenticacion en doble factor (2FA) y envio de correos electronicos para el registro y verificacion de los usuarios .
+Adicionalmente se ha implementado seguridad mediante JWT, inicio de sesion mediante QR,autenticacion en doble factor (2FA) y envio de correos electronicos para el registro y verificacion de los usuarios .
 
 
 
