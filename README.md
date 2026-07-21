@@ -27,6 +27,10 @@ Se utiliza Maven como gestor de dependencias, la versión de Java es 21 y las de
 | Spring Boot Starter Data JPA   |  4.0.7  | Persistencia de datos mediante JPA/Hibernate.          |
 | SpringDoc OpenAPI (Swagger UI) |  3.0.2  | Documentación interactiva de la API basada en OpenAPI. |
 | Spring Boot Starter Mail       |  4.0.7  | Envío de correos electrónicos mediante SMTP.           |
+| Spring Boot Starter Validation |  4.0.7  | Validación de datos con Bean Validation (Jakarta).     |
+| jjwt (API + Impl + Jackson)    |  0.12.6 | Generación y validación de tokens JWT firmados con HS256. |
+| Google ZXing Core + JavaSE     |  3.5.3  | Generación de imágenes QR (PNG en Base64) para login por QR. |
+| TOTP (dev.samstevens.totp)     |  1.7.1  | Autenticación de doble factor (2FA) compatible con Google Authenticator. |
 
 Esta tabla contiene las dependencias del proyecto, la versión de cada dependencia y una breve descripción de cada dependencia. Esta información se encuentra en el archivo pom.xml.
 
