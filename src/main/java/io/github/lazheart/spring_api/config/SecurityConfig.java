@@ -71,17 +71,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(org.springframework.security.config.Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas: solo auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Swagger/OpenAPI (opcional en dev)
+                        // Swagger/OpenAPI 
                         .requestMatchers(
+                                "/api/docs",
                                 "/api/docs/**",
+                                "/api/swagger-ui/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
+                                "/v3/api-docs",
                                 "/v3/api-docs/**"
                         ).permitAll()
                         // Todo lo demás requiere autenticación
